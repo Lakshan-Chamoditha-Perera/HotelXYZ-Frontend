@@ -49,136 +49,186 @@ export default function ManageCustomer() {
         return 0;
     });
 
-    return (<div className="flex flex-col gap-8 p-6 md:p-8 lg:p-10">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <div className="col-span-1 md:col-span-2 lg:col-span-3">
-                <div className="bg-white shadow rounded-lg">
-                    <div className="p-4 border-b border-gray-200">
-                        <h2 className="text-lg font-semibold">Customer Management</h2>
-                        <p className="text-sm text-gray-600">Add and update customer information.</p>
+    return (
+
+        <div className="flex flex-col gap-8 p-6 md:p-8 lg:p-10">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="col-span-1 md:col-span-2 lg:col-span-3">
+                    <div className="bg-white shadow rounded-lg">
+                        <div className="p-4 border-b border-gray-200">
+                            <h2 className="text-lg font-semibold">Customer Management</h2>
+                            <p className="text-sm text-gray-600">Add and update customer information.</p>
+                        </div>
+
+                        <div className="p-4">
+                            <form className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                <div className="grid gap-2">
+                                    <label htmlFor="nic" className="text-sm font-medium text-gray-700">Nic</label>
+                                    <input id="nic" placeholder="Enter Nic number"
+                                           className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>
+                                </div>
+                                <div className="grid gap-2">
+                                    <label htmlFor="firstName" className="text-sm font-medium text-gray-700">First
+                                        Name</label>
+                                    <input id="firstName" placeholder="Enter First name"
+                                           className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>
+                                </div>
+                                <div className="grid gap-2">
+                                    <label htmlFor="lastName" className="text-sm font-medium text-gray-700">Last
+                                        Name</label>
+                                    <input id="lastName" type="text" placeholder="Enter Last name"
+                                           className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>
+                                </div>
+                                <div className="grid gap-2">
+                                    <label htmlFor="phone" className="text-sm font-medium text-gray-700">Phone</label>
+                                    <input id="phone" placeholder="Enter phone number"
+                                           className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>
+                                </div>
+                                <div className="grid gap-2">
+                                    <label htmlFor="email"
+                                           className="text-sm font-medium text-gray-700">Email</label>
+                                    <input id="email" type="email" placeholder="Enter email"
+                                           className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>
+                                </div>
+
+                                <div className="col-span-1 sm:col-span-2 lg:col-span-1 flex items-end">
+                                    <Button
+                                        className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save
+                                    </Button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
+                </div>
+            </div>
 
-                    <div className="p-4">
-                        <form className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            <div className="grid gap-2">
-                                <label htmlFor="nic" className="text-sm font-medium text-gray-700">Nic</label>
-                                <input id="nic" placeholder="Enter Nic number"
-                                       className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>
+            <div className="bg-white shadow rounded-lg">
+                <div className="p-4 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold">Customer List</h2>
+                    <p className="text-sm text-gray-600">View and manage all customers.</p>
+                </div>
+                <div className="p-4 overflow-y-auto" style={{maxHeight: '45vh'}}>
+                    <div className="flex flex-col mb-4">
+                        <div className="flex flex-wrap gap-2 w-full">
+                            {/* Search by First Name */}
+                            <div className="relative w-full max-w-xs">
+                                <SearchIcon className="absolute left-3 top-2 h-5 w-5 text-gray-400"/>
+                                <input
+                                    type="search"
+                                    placeholder="First Name"
+                                    value={searchTerm.firstName || ''}
+                                    onChange={(e) => setSearchTerm({...searchTerm, firstName: e.target.value})}
+                                    className="w-full pl-10 pr-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                />
                             </div>
-                            <div className="grid gap-2">
-                                <label htmlFor="firstName" className="text-sm font-medium text-gray-700">First
-                                    Name</label>
-                                <input id="firstName" placeholder="Enter First name"
-                                       className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>
+                            {/* Search by Last Name */}
+                            <div className="relative w-full max-w-xs">
+                                <SearchIcon className="absolute left-3 top-2 h-5 w-5 text-gray-400"/>
+                                <input
+                                    type="search"
+                                    placeholder="Last Name"
+                                    value={searchTerm.lastName || ''}
+                                    onChange={(e) => setSearchTerm({...searchTerm, lastName: e.target.value})}
+                                    className="w-full pl-10 pr-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                />
                             </div>
-                            <div className="grid gap-2">
-                                <label htmlFor="lastName" className="text-sm font-medium text-gray-700">Last
-                                    Name</label>
-                                <input id="lastName" type="text" placeholder="Enter Last name"
-                                       className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>
+                            {/* Search by Phone */}
+                            <div className="relative w-full max-w-xs">
+                                <SearchIcon className="absolute left-3 top-2 h-5 w-5 text-gray-400"/>
+                                <input
+                                    type="search"
+                                    placeholder="Phone"
+                                    value={searchTerm.phone || ''}
+                                    className="w-full pl-10 pr-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                />
                             </div>
-                            <div className="grid gap-2">
-                                <label htmlFor="phone" className="text-sm font-medium text-gray-700">Phone</label>
-                                <input id="phone" placeholder="Enter phone number"
-                                       className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>
+                            {/* Search by Email */}
+                            <div className="relative w-full max-w-xs">
+                                <SearchIcon className="absolute left-3 top-2 h-5 w-5 text-gray-400"/>
+                                <input
+                                    type="search"
+                                    placeholder="Email"
+                                    value={searchTerm.email || ''}
+                                    className="w-full pl-10 pr-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                />
                             </div>
-                            <div className="grid gap-2">
-                                <label htmlFor="email"
-                                       className="text-sm font-medium text-gray-700">Email</label>
-                                <input id="email" type="email" placeholder="Enter email"
-                                       className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>
+                            {/* Search by NIC */}
+                            <div className="relative w-full max-w-xs">
+                                <SearchIcon className="absolute left-3 top-2 h-5 w-5 text-gray-400"/>
+                                <input
+                                    type="search"
+                                    placeholder="NIC"
+                                    value={searchTerm.nic || ''}
+                                    className="w-full pl-10 pr-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                />
                             </div>
+                        </div>
 
-                            <div className="col-span-1 sm:col-span-2 lg:col-span-1 flex items-end">
+                        <div className="flex border justify-end">
+                            <Button variant="contained" color="primary">Filter</Button>
+                        </div>
+                    </div>
+                    <table className="min-w-full bg-white">
+                        <thead>
+                        <tr>
+                            <th className="cursor-pointer p-4 border-b-2" onClick={() => handleSort("name")}>
+                                First Name
+                                {sortColumn === "firstName" &&
+                                    <span className="ml-1">{sortDirection === "asc" ? "▲" : "▼"}</span>}
+                            </th>
+                            <th className="cursor-pointer p-4 border-b-2">
+                                Last Name
+                            </th>
+                            <th className="cursor-pointer p-4 border-b-2">
+                                Email
+                                {sortColumn === "email" &&
+                                    <span className="ml-1">{sortDirection === "asc" ? "▲" : "▼"}</span>}
+                            </th>
+                            <th className="cursor-pointer p-4 border-b-2">
+                                Phone
+                            </th>
+
+                            <th className="p-4 border-b-2 text-right">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        {sortedCustomers.map((customer) => (<tr key={customer.id}>
+                            <td className="p-4 border-b">{customer.firstName}</td>
+                            <td className="p-4 border-b">{customer.lastName}</td>
+                            <td className="p-4 border-b">{customer.email}</td>
+                            <td className="p-4 border-b">{customer.phone}</td>
+
+                            <td className="p-4 border-b flex justify-end items-center">
                                 <Button
-                                    className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save
-                                </Button>
-                            </div>
-                        </form>
-                    </div>
+                                    variant="text"
+                                    className="m-1 rounded-full"
+                                    startIcon={<DeleteIcon/>}
+                                    sx={{
+                                        minWidth: 'auto', padding: '6px', '&:hover': {
+                                            backgroundColor: '#ffebee',
+                                        },
+                                    }}
+                                />
+                                <Button
+                                    variant="text"
+                                    className="m-1 rounded-full"
+                                    startIcon={<EditIcon/>}
+                                    sx={{
+                                        minWidth: 'auto', padding: '6px', '&:hover': {
+                                            backgroundColor: '#e3f2fd',
+                                        },
+                                    }}
+                                />
+                            </td>
+
+
+                        </tr>))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
-
-        <div className="bg-white shadow rounded-lg">
-            <div className="p-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold">Customer List</h2>
-                <p className="text-sm text-gray-600">View and manage all customers.</p>
-            </div>
-            <div className="p-4 overflow-y-auto" style={{ maxHeight: '45vh' }}>
-                <div className="flex items-center justify-between mb-4">
-                    <div className="relative w-full max-w-md">
-                        <SearchIcon className="absolute left-3 top-2 h-5 w-5 text-gray-400"/>
-                        <input
-                            type="search"
-                            placeholder="Search customers..."
-                            value={searchTerm}
-                            onChange={handleSearch}
-                            className="w-full pl-10 pr-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        />
-                    </div>
-                </div>
-                <table className="min-w-full bg-white">
-                    <thead>
-                    <tr>
-                        <th className="cursor-pointer p-4 border-b-2" onClick={() => handleSort("name")}>
-                            First Name
-                            {sortColumn === "firstName" &&
-                                <span className="ml-1">{sortDirection === "asc" ? "▲" : "▼"}</span>}
-                        </th>
-                        <th className="cursor-pointer p-4 border-b-2">
-                            Last Name
-                        </th>
-                        <th className="cursor-pointer p-4 border-b-2">
-                            Email
-                            {sortColumn === "email" &&
-                                <span className="ml-1">{sortDirection === "asc" ? "▲" : "▼"}</span>}
-                        </th>
-                        <th className="cursor-pointer p-4 border-b-2">
-                            Phone
-                        </th>
-
-                        <th className="p-4 border-b-2 text-right">Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-
-                    {sortedCustomers.map((customer) => (<tr key={customer.id}>
-                        <td className="p-4 border-b">{customer.firstName}</td>
-                        <td className="p-4 border-b">{customer.lastName}</td>
-                        <td className="p-4 border-b">{customer.email}</td>
-                        <td className="p-4 border-b">{customer.phone}</td>
-
-                        <td className="p-4 border-b flex justify-end items-center">
-                            <Button
-                                variant="text"
-                                className="m-1 rounded-full"
-                                startIcon={<DeleteIcon/>}
-                                sx={{
-                                    minWidth: 'auto', padding: '6px', '&:hover': {
-                                        backgroundColor: '#ffebee',
-                                    },
-                                }}
-                            />
-                            <Button
-                                variant="text"
-                                className="m-1 rounded-full"
-                                startIcon={<EditIcon/>}
-                                sx={{
-                                    minWidth: 'auto', padding: '6px', '&:hover': {
-                                        backgroundColor: '#e3f2fd',
-                                    },
-                                }}
-                            />
-                        </td>
-
-
-                    </tr>))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>);
+        </div>);
 }
 
 function SearchIcon(props) {

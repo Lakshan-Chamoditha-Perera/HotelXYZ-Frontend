@@ -23,8 +23,8 @@ const Sidebar = () => {
                     </Link>
                 </li>
                 <li className="hover:cursor-pointer">
-                    <Link to="/payments" className="flex items-center">
-                        <Payment className="mr-2" /> Payments
+                    <Link to="/bookings" className="flex items-center">
+                        <Payment className="mr-2" /> Bookings
                     </Link>
                 </li>
             </ul>

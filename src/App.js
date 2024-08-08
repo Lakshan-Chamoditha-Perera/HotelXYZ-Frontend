@@ -4,6 +4,7 @@ import Sidebar from "./components/Sidebar";
 import CustomersView from "./views/CustomersView";
 import Home from "./views/Home";
 import RoomsView from "./views/RoomsView";
+import BookingsView from "./views/BookingsView";
 
 function Layout({ children }) {
     return (
@@ -22,6 +23,7 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/customers" element={<CustomersView />} />
                     <Route path="/rooms" element={<RoomsView/>}/>
+                    <Route path="/bookings" element={<BookingsView/>}/>
                 </Routes>
             </Layout>
         </Router>
