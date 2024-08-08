@@ -98,14 +98,14 @@ export default function ManageCustomer() {
                     </div>
                 </div>
             </div>
-
         </div>
+
         <div className="bg-white shadow rounded-lg">
             <div className="p-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold">Customer List</h2>
                 <p className="text-sm text-gray-600">View and manage all customers.</p>
             </div>
-            <div className="p-4">
+            <div className="p-4 overflow-y-auto" style={{ maxHeight: '45vh' }}>
                 <div className="flex items-center justify-between mb-4">
                     <div className="relative w-full max-w-md">
                         <SearchIcon className="absolute left-3 top-2 h-5 w-5 text-gray-400"/>
