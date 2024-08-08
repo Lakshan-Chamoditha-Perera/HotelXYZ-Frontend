@@ -1,5 +1,7 @@
 import './App.css';
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Sidebar from "./components/Sidebar";
 import CustomersView from "./views/CustomersView";
 import Home from "./views/Home";
@@ -9,6 +11,7 @@ import BookingsView from "./views/BookingsView";
 function Layout({ children }) {
     return (
         <div className="flex">
+            <ToastContainer />
             <Sidebar />
             <main className="w-5/6 p-5">{children}</main>
         </div>

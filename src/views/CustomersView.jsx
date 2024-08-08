@@ -1,34 +1,56 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Button} from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import {getAllCustomers} from '../service/CustomerService'
+import {Bounce, toast} from "react-toastify"
 
 export default function ManageCustomer() {
-    const [customers, setCustomers] = useState([{
-        id: 1, firstName: "John", lastName: "Doe", email: "john.doe@example.com", phone: "+1234567890"
-    }, {
-        id: 2, firstName: "Jane", lastName: "Smith", email: "jane.smith@example.com", phone: "+1234567891"
-    }, {
-        id: 3, firstName: "Michael", lastName: "Johnson", email: "michael.johnson@example.com", phone: "+1234567892"
-    }, {
-        id: 4, firstName: "Emily", lastName: "Davis", email: "emily.davis@example.com", phone: "+1234567893"
-    }, {
-        id: 5, firstName: "David", lastName: "Lee", email: "david.lee@example.com", phone: "+1234567894"
-    }, {
-        id: 6, firstName: "Sarah", lastName: "Brown", email: "sarah.brown@example.com", phone: "+1234567895"
-    }, {
-        id: 7, firstName: "James", lastName: "Wilson", email: "james.wilson@example.com", phone: "+1234567896"
-    }, {
-        id: 8, firstName: "Jessica", lastName: "Martinez", email: "jessica.martinez@example.com", phone: "+1234567897"
-    }, {
-        id: 9, firstName: "William", lastName: "Anderson", email: "william.anderson@example.com", phone: "+1234567898"
-    }, {
-        id: 10, firstName: "Olivia", lastName: "Thomas", email: "olivia.thomas@example.com", phone: "+1234567899"
-    }]);
-
+    const [customers, setCustomers] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [sortColumn, setSortColumn] = useState("name");
     const [sortDirection, setSortDirection] = useState("asc");
+
+    const [customerData, setCustomerData] = useState({
+        nic: "", firstName: "", lastName: "", phone: "", email: ""
+    });
+
+    function handleCustomerDataChange(event) {
+        const {id, value} = event.target;
+        setCustomerData((prevData) => ({
+            ...prevData, [id]: value
+        }));
+    }
+
+
+    useEffect(() => {
+        console.log(process.env.REACT_APP_BACKEND_URL)
+
+        getAllCustomers().then((response) => {
+            setCustomers(response.data);
+            toast.success("Customers loaded", {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            })
+        }).catch((error) => {
+           toast.error(error.response.data.message, {
+               position: "top-right",
+               autoClose: 5000,
+               hideProgressBar: false,
+               closeOnClick: true,
+               pauseOnHover: true,
+               draggable: true,
+               progress: undefined,
+               theme: "light",
+           })
+        })
+    }, [])
 
     const handleSearch = (e) => setSearchTerm(e.target.value);
 
@@ -49,6 +71,7 @@ export default function ManageCustomer() {
         return 0;
     });
 
+
     return (
 
         <div className="flex flex-col gap-8 p-6 md:p-8 lg:p-10">
@@ -65,29 +88,39 @@ export default function ManageCustomer() {
                                 <div className="grid gap-2">
                                     <label htmlFor="nic" className="text-sm font-medium text-gray-700">Nic</label>
                                     <input id="nic" placeholder="Enter Nic number"
+                                           value={customerData.nic}
+                                           onChange={handleCustomerDataChange}
                                            className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>
                                 </div>
                                 <div className="grid gap-2">
                                     <label htmlFor="firstName" className="text-sm font-medium text-gray-700">First
                                         Name</label>
                                     <input id="firstName" placeholder="Enter First name"
+                                           value={customerData.firstName}
+                                           onChange={handleCustomerDataChange}
                                            className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>
                                 </div>
                                 <div className="grid gap-2">
                                     <label htmlFor="lastName" className="text-sm font-medium text-gray-700">Last
                                         Name</label>
                                     <input id="lastName" type="text" placeholder="Enter Last name"
+                                           value={customerData.lastName}
+                                           onChange={handleCustomerDataChange}
                                            className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>
                                 </div>
                                 <div className="grid gap-2">
                                     <label htmlFor="phone" className="text-sm font-medium text-gray-700">Phone</label>
                                     <input id="phone" placeholder="Enter phone number"
+                                           value={customerData.phone}
+                                           onChange={handleCustomerDataChange}
                                            className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>
                                 </div>
                                 <div className="grid gap-2">
                                     <label htmlFor="email"
                                            className="text-sm font-medium text-gray-700">Email</label>
                                     <input id="email" type="email" placeholder="Enter email"
+                                           value={customerData.email}
+                                           onChange={handleCustomerDataChange}
                                            className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>
                                 </div>
 
