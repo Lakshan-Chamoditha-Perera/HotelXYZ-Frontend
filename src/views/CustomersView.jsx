@@ -1,20 +1,26 @@
 import {useEffect, useState} from "react";
 import {Button} from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import {getAllCustomers} from '../service/CustomerService'
-import {Bounce, toast} from "react-toastify"
+import {deleteCustomer, getAllCustomers, saveCustomer, updateCustomer} from '../service/CustomerService'
+import {toast} from "react-toastify"
 
-export default function ManageCustomer() {
+export default function ManageCustomer(effect, deps) {
     const [customers, setCustomers] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [sortColumn, setSortColumn] = useState("name");
     const [sortDirection, setSortDirection] = useState("asc");
 
+    const [isCustomerSelected, setIsCustomerSelected] = useState(false);
+
     const [customerData, setCustomerData] = useState({
         nic: "", firstName: "", lastName: "", phone: "", email: ""
     });
 
+    useEffect(() => {
+        refreshCustomers();
+    }, []);
+
+    // handle customer data change
     function handleCustomerDataChange(event) {
         const {id, value} = event.target;
         setCustomerData((prevData) => ({
@@ -22,13 +28,12 @@ export default function ManageCustomer() {
         }));
     }
 
-
-    useEffect(() => {
-        console.log(process.env.REACT_APP_BACKEND_URL)
-
+    // get all customers
+    function refreshCustomers() {
+        console.log("refresh customers")
         getAllCustomers().then((response) => {
             setCustomers(response.data);
-            toast.success("Customers loaded", {
+            toast.success("Customers fetched successfully", {
                 position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: false,
@@ -39,18 +44,156 @@ export default function ManageCustomer() {
                 theme: "light",
             })
         }).catch((error) => {
-           toast.error(error.response.data.message, {
-               position: "top-right",
-               autoClose: 5000,
-               hideProgressBar: false,
-               closeOnClick: true,
-               pauseOnHover: true,
-               draggable: true,
-               progress: undefined,
-               theme: "light",
-           })
+            toast.error(error.message, {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            })
         })
-    }, [])
+    }
+
+    // delete customer
+    function handleDeleteCustomer(id) {
+        console.log("handle delete customer : ", id);
+        deleteCustomer(id).then(r => {
+            toast.success("Customer deleted successfully");
+            refreshCustomers();
+        }).catch(err => {
+            toast.error("Failed to delete customer");
+        })
+        resetForm();
+    }
+
+    // verify customer data
+    function verifyCustomerDate(customerData) {
+        if (customerData.nic == null || customerData.nic === "") {
+            throw new Error("NIC is required");
+        }
+        if (customerData.firstName == null || customerData.firstName === "") {
+            throw new Error("First Name is required");
+        }
+        if (customerData.lastName == null || customerData.lastName === "") {
+            throw new Error("Last Name is required");
+        }
+        if (customerData.phone == null || customerData.phone === "") {
+            throw new Error("Phone is required");
+        }
+        if (customerData.email == null || customerData.email === "") {
+            throw new Error("Email is required");
+        }
+        return true;
+    }
+
+
+    /**
+     * Submit the form and save the customer
+     * @param event
+     */
+    function handleSubmitForm(event) {
+        console.log("handle submit form : ", customerData);
+
+
+        try {
+            if (verifyCustomerDate(customerData)) {
+                if (!isCustomerSelected) {
+                    saveCustomer(customerData)
+                        .then((response) => {
+                            switch (response.code) {
+                                case 409 :
+                                    toast.error(response.message || "An error occurred while saving the customer.", {
+                                        position: "top-right",
+                                        autoClose: 5000,
+                                        hideProgressBar: false,
+                                        closeOnClick: true,
+                                        pauseOnHover: true,
+                                        draggable: true,
+                                        progress: undefined,
+                                        theme: "light",
+                                    });
+                                    break;
+                                case 200:
+                                    toast.success("Customer saved successfully!", {
+                                        position: "top-right",
+                                        autoClose: 5000,
+                                        hideProgressBar: false,
+                                        closeOnClick: true,
+                                        pauseOnHover: true,
+                                        draggable: true,
+                                        progress: undefined,
+                                        theme: "light",
+                                    });
+                                    resetForm();
+                                    break;
+                            }
+                            refreshCustomers();
+                        }).catch((error) => {
+                        toast.error(error.message || "An error occurred while saving the customer.", {
+                            position: "top-right",
+                            autoClose: 5000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "light",
+                        });
+                    });
+                } else {
+                    updateCustomer(customerData).then((response) => {
+                        toast.success("Customer updated successfully!", {
+                            position: "top-right",
+                            autoClose: 5000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "light",
+                        });
+                    }).catch((error) => {
+                        toast.error(error.message || "An error occurred while updating the customer.", {
+                            position: "top-right",
+                            autoClose: 5000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "light",
+                        });
+                    });
+                    setIsCustomerSelected(false);
+                }
+                resetForm();
+            }
+        } catch (error) {
+            toast.error(error.message, {
+                position: "top-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+        }
+    }
+
+    /**
+     * Reset the form
+     */
+    function resetForm() {
+        setCustomerData({
+            nic: "", firstName: "", lastName: "", phone: "", email: ""
+        });
+    }
+
 
     const handleSearch = (e) => setSearchTerm(e.target.value);
 
@@ -71,6 +214,17 @@ export default function ManageCustomer() {
         return 0;
     });
 
+    function handleTableDataOnClick(customer) {
+        console.log("handle table data on click : ", customer);
+        setCustomerData({
+            id: customer.id,
+            firstName: customer.firstName,
+            lastName: customer.lastName,
+            email: customer.email,
+            phone: customer.phone
+        })
+        setIsCustomerSelected(true)
+    }
 
     return (
 
@@ -109,9 +263,11 @@ export default function ManageCustomer() {
                                            className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>
                                 </div>
                                 <div className="grid gap-2">
-                                    <label htmlFor="phone" className="text-sm font-medium text-gray-700">Phone</label>
+                                    <label htmlFor="phone"
+                                           className="text-sm font-medium text-gray-700">Phone</label>
                                     <input id="phone" placeholder="Enter phone number"
                                            value={customerData.phone}
+                                           type={'tel'}
                                            onChange={handleCustomerDataChange}
                                            className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"/>
                                 </div>
@@ -126,8 +282,13 @@ export default function ManageCustomer() {
 
                                 <div className="col-span-1 sm:col-span-2 lg:col-span-1 flex items-end">
                                     <Button
-                                        className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save
+                                        onClick={handleSubmitForm}
+                                        className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-sm
+                                        hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500
+                                        focus:ring-offset-2">
+                                        {!isCustomerSelected ? 'Save' : 'Update'}
                                     </Button>
+
                                 </div>
                             </form>
                         </div>
@@ -226,42 +387,40 @@ export default function ManageCustomer() {
                         </thead>
                         <tbody>
 
-                        {sortedCustomers.map((customer) => (<tr key={customer.id}>
-                            <td className="p-4 border-b">{customer.firstName}</td>
-                            <td className="p-4 border-b">{customer.lastName}</td>
-                            <td className="p-4 border-b">{customer.email}</td>
-                            <td className="p-4 border-b">{customer.phone}</td>
+                        {sortedCustomers.map((customer) => (
 
-                            <td className="p-4 border-b flex justify-end items-center">
-                                <Button
-                                    variant="text"
-                                    className="m-1 rounded-full"
-                                    startIcon={<DeleteIcon/>}
-                                    sx={{
-                                        minWidth: 'auto', padding: '6px', '&:hover': {
-                                            backgroundColor: '#ffebee',
-                                        },
-                                    }}
-                                />
-                                <Button
-                                    variant="text"
-                                    className="m-1 rounded-full"
-                                    startIcon={<EditIcon/>}
-                                    sx={{
-                                        minWidth: 'auto', padding: '6px', '&:hover': {
-                                            backgroundColor: '#e3f2fd',
-                                        },
-                                    }}
-                                />
-                            </td>
+                            <tr className={'hover:cursor-pointer'} key={customer.id} onClick={(e) => {
+                                e.preventDefault()
+                                handleTableDataOnClick(customer)
+                            }}>
 
-
-                        </tr>))}
+                                <td className="p-4 border-b">{customer.firstName}</td>
+                                <td className="p-4 border-b">{customer.lastName}</td>
+                                <td className="p-4 border-b">{customer.email}</td>
+                                <td className="p-4 border-b">{customer.phone}</td>
+                                <td className="p-4 border-b flex justify-end items-center">
+                                    <Button
+                                        variant="text"
+                                        className="m-1 rounded-full"
+                                        startIcon={<DeleteIcon/>}
+                                        onClick={(e) => {
+                                            e.preventDefault()
+                                            handleDeleteCustomer(customer.id)
+                                        }}
+                                        sx={{
+                                            minWidth: 'auto', padding: '6px', '&:hover': {
+                                                backgroundColor: '#ffebee',
+                                            },
+                                        }}
+                                    />
+                                </td>
+                            </tr>))}
                         </tbody>
                     </table>
                 </div>
             </div>
-        </div>);
+        </div>)
+
 }
 
 function SearchIcon(props) {
