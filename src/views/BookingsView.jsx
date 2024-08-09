@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardContent from "@mui/material/CardContent";
@@ -10,173 +10,292 @@ import MenuItem from "@mui/material/MenuItem";
 import Divider from "@mui/material/Divider";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import CheckIcon from "@mui/icons-material/Check";
+import TextField from "@mui/material/TextField";
+import { toast } from "react-toastify";
+
+import { getAllRooms } from "../service/RoomService";
+import { getAllCustomers, findCustomerById } from "../service/CustomerService";
+import RoomCard from "../components/RoomCard";
 
 export default function BookingsView() {
-    return (<div className="max-h-[95vh] overflow-y-scroll flex flex-col p-6 md:p-8 lg:p-10">
-            <div className="grid gap-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                <div className="col-span-1 md:col-span-2 lg:col-span-3">
-                    <div className="bg-white shadow rounded-lg">
-                        <div className="p-4 border-b border-gray-200">
-                            <h2 className="text-lg font-semibold">Bookings Management</h2>
-                            <p className="text-sm text-gray-600">
-                                Manage customer bookings and room reservations
-                            </p>
-                        </div>
-                    </div>
-                </div>
+  const [roomList, setRoomList] = useState([]);
+  const [cart, setCart] = useState([]);
+  const [checkInDate, setCheckInDate] = useState("");
+  const [checkOutDate, setCheckOutDate] = useState("");
+  const [customer, setCustomer] = useState({});
+  const [customerId, setCustomerId] = useState(0);
 
-                <div className="col-span-3 gap-6 grid grid-cols-5">
+  function handleCustomerNICChange(event) {
+    setCustomerId(event.target.value);
+  }
 
-                    <div className="col-span-2 grid gap-6">
-                        <Card>
-                            <CardHeader
-                                title={<Typography variant="h7">Customer Search</Typography>}
-                            />
-                            <CardContent className="grid gap-6">
-                                {/* Search and Filter Section */}
-                                <div className="flex flex-col gap-4">
-                                    <div className="flex flex-wrap gap-4 items-center">
-                                        <input
-                                            type="search"
-                                            placeholder="NIC"
-                                            className="w-full max-w-xs pl-10 pr-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                                        />
-                                        <Button variant="contained" color="primary" className="ml-4">
-                                            Filter
-                                        </Button>
-                                    </div>
-                                </div>
+  function handleFindCustomer() {
+    findCustomerById(customerId)
+      .then((response) => {
+        if (response.id != null) {
+          console.log(response);
+          setCustomer(response);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        toast.error("Customer not found");
+      });
+  }
 
-                                {/* Customer Details Section */}
-                                <div className="flex flex-col gap-2">
-                                    <Typography variant="body1" className="font-semibold">
-                                        Customer Details
-                                    </Typography>
-                                    <div className="flex flex-col gap-1">
-                                        {["Name: John Doe", "Email: john.doe@example.com", "Phone: (123) 456-7890"].map((detail, index) => (
-                                            <Typography key={index} variant="body2" color="textSecondary">
-                                                {detail}
-                                            </Typography>
-                                        ))}
-                                    </div>
-                                </div>
-                            </CardContent>
+  function handleDateChange(event) {
+    const { id, value } = event.target;
+    if (id === "checkInDate") {
+      setCheckInDate(value);
+    } else if (id === "checkOutDate") {
+      setCheckOutDate(value);
+    }
+  }
 
-                        </Card>
+  function loadRooms() {
+    getAllRooms()
+      .then((response) => {
+        setRoomList(response.data);
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 
-                        <Card>
-                            <CardHeader
-                                title={<Typography variant="h7">Room Selection</Typography>}
-                            />
-                            <CardContent className="grid gap-4">
-                                <div className="grid gap-2">
-                                    <Typography variant="body1">Room type</Typography>
-                                    <Select id="room-type" defaultValue="" fullWidth>
-                                        <MenuItem value="" disabled>
-                                            Select room type
-                                        </MenuItem>
-                                        <MenuItem value="single">Single</MenuItem>
-                                        <MenuItem value="double">Double</MenuItem>
-                                        <MenuItem value="suite">Suite</MenuItem>
-                                    </Select>
-                                </div>
-                                <div className="grid gap-2">
-                                    <Typography variant="body1">Available rooms</Typography>
-                                    <div className="grid gap-2 overflow-y-scroll h-[250px]">
-                                        {["Room 101", "Room 102", "Room 201"].map((room, index) => (<div
-                                            key={index}
-                                            className="flex items-center justify-between bg-gray-200 px-4 py-3 rounded-md"
-                                        >
-                                            <div>
-                                                <Typography variant="body1" className="font-medium">
-                                                    {room}
-                                                </Typography>
-                                                <Typography variant="body2" color="textSecondary">
-                                                    {index === 0 ? "Single" : index === 1 ? "Double" : "Suite"}
-                                                </Typography>
-                                            </div>
-                                            <IconButton size="small">
-                                                <AddIcon/>
-                                            </IconButton>
-                                        </div>))}
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                    <div className="col-span-3 grid gap-6">
-                        <Card>
-                            <CardHeader
-                                title={<Typography variant="h7">Booking Summary</Typography>}
-                            />
-                            <CardContent className="grid gap-4">
-                                <div className="grid gap-2">
-                                    {["Room 101 - Single", "Room 102 - Double"].map((room, index) => (<div
-                                        key={index}
-                                        className="flex items-center justify-between"
-                                    >
-                                        <Typography variant="body1" className="font-medium">
-                                            {room}
-                                        </Typography>
-                                        <IconButton size="small">
-                                            <DeleteIcon/>
-                                        </IconButton>
-                                    </div>))}
-                                </div>
-                                <Divider/>
-                                <div className="flex items-center justify-between">
-                                    <Typography variant="body1" className="font-medium">
-                                        Total
-                                    </Typography>
-                                    <Typography variant="h4">$450</Typography>
-                                </div>
-                                <Button variant="contained" size="large" fullWidth>
-                                    Confirm Booking
-                                </Button>
-                            </CardContent>
-                        </Card>
+  useEffect(() => {
+    loadRooms();
+  }, []);
+  const handleRemoveFromCart = (room) => {
+    const updatedCart = cart.filter((cartItem) => cartItem.id !== room.id);
+    setCart(updatedCart);
+  };
 
-                        <Card>
-                            <CardHeader
-                                title={<Typography variant="h7">Room Details</Typography>}
-                            />
-                            <CardContent className="grid gap-4">
-                                <div className="grid gap-2">
-                                    <Typography variant="body1" className="font-medium">
-                                        Room 101 - Single
-                                    </Typography>
-                                    <Typography variant="body2" color="textSecondary">
-                                        This cozy single room features a comfortable queen-size bed, a
-                                        work desk, and an en-suite bathroom with a shower. It's perfect
-                                        for solo travelers or those on a business trip.
-                                    </Typography>
-                                </div>
-                                <div className="grid gap-2">
-                                    <Typography variant="body1" className="font-medium">
-                                        Amenities
-                                    </Typography>
-                                    <ul className="grid gap-2 text-sm text-gray-500">
-                                        {["Free Wi-Fi", "Flat-screen TV", "Mini-fridge", "Complimentary toiletries"].map((amenity, index) => (
-                                            <li key={index} className="flex items-center gap-2">
-                                                <CheckIcon color="primary" fontSize="small"/>
-                                                {amenity}
-                                            </li>))}
-                                    </ul>
-                                </div>
-                                <div className="grid gap-2">
-                                    <Typography variant="body1" className="font-medium">
-                                        Price
-                                    </Typography>
-                                    <Typography variant="h4">$150 per night</Typography>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </div>
+  const handleAddToCart = (room) => {
+    const isRoomInCart = cart.find((cartItem) => cartItem.id === room.id);
+    if (!isRoomInCart) {
+      setCart([...cart, room]);
+    } else {
+      toast.error("Room already added to cart");
+    }
+  };
 
+  const getTotalPrice = () => {
+    return cart.reduce((total, room) => total + room.price, 0);
+  };
+
+  return (
+    <div className="max-h-[95vh] overflow-y-scroll flex flex-col p-6 md:p-8 lg:p-10">
+      <div className="grid gap-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <div className="col-span-1 md:col-span-2 lg:col-span-3">
+          <div className="bg-white shadow rounded-lg">
+            <div className="p-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold">Bookings Management</h2>
+              <p className="text-sm text-gray-600">
+                Manage customer bookings and room reservations
+              </p>
             </div>
+          </div>
         </div>
 
-    );
+        <div className="col-span-3 gap-6 grid grid-cols-5">
+          <div className="col-span-2 grid gap-6">
+            <Card>
+              <CardHeader
+                title={<Typography variant="h7">Customer Search</Typography>}
+              />
+              <CardContent className="p-4">
+                {/* Search and Filter Section */}
+                <div className="flex items-center gap-4 mb-4">
+                  <input
+                    id="nic"
+                    type="number"
+                    placeholder="NIC"
+                    value={customerId}
+                    onChange={handleCustomerNICChange}
+                    className="w-full max-w-xs pl-10 pr-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                  <Button
+                    onClick={handleFindCustomer}
+                    variant="contained"
+                    color="primary"
+                  >
+                    Filter
+                  </Button>
+                </div>
+
+                {/* Customer Details Section */}
+                <div>
+                  <Typography variant="body1" className="font-semibold mb-2">
+                    Customer Details
+                  </Typography>
+                  <div className="flex flex-col gap-1">
+                    {[
+                      `ID: ${customer.id || "-"}`,
+                      `NIC: ${customer.nic || "-"}`,
+                      `Name: ${
+                        customer.firstName + " " + customer.lastName || "-"
+                      }`,
+                      `Email: ${customer.email || "-"}`,
+                      `Phone: ${customer.phone || "-"}`,
+                    ].map((detail, index) => (
+                      <Typography
+                        key={index}
+                        variant="body2"
+                        color="textSecondary"
+                      >
+                        {detail}
+                      </Typography>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader
+                title={<Typography variant="h7">Room Selection</Typography>}
+              />
+              <CardContent className="grid gap-4">
+                <div className="grid gap-2 px-1">
+                  <Typography variant="body1">Room Type</Typography>
+                  <div className="">
+                    <Select
+                      size="small"
+                      id="room-type"
+                      defaultValue=""
+                      fullWidth
+                    >
+                      <MenuItem value="" disabled>
+                        Select room type
+                      </MenuItem>
+                      <MenuItem value="SINGLE">Single</MenuItem>
+                      <MenuItem value="DOUBLE">Double</MenuItem>
+                      <MenuItem value="SUITE">Suite</MenuItem>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid gap-2 px-1">
+                  <Typography variant="body1">Available Rooms</Typography>
+                  <div className="grid gap-4">
+                    <div
+                      className="overflow-y-auto"
+                      style={{ maxHeight: "40vh" }}
+                    >
+                      {roomList.map((room) => (
+                        <RoomCard
+                          key={room.id}
+                          room={room}
+                          onAddToCart={handleAddToCart}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="col-span-3 grid gap-6">
+            <Card>
+              <CardHeader
+                title={<Typography variant="h7">Booking Details</Typography>}
+              />
+              <CardContent className="p-4">
+                {/* Booking Dates Section */}
+                <div className="flex flex-col gap-4 border-b border-gray-300 pb-4 mb-4">
+                  <Typography variant="body1" className="font-medium">
+                    Booking Dates
+                  </Typography>
+                  <div className="flex gap-4">
+                    <TextField
+                      label="Check-in Date"
+                      id="checkInDate"
+                      type="date"
+                      InputLabelProps={{ shrink: true }}
+                      variant="outlined"
+                      size="small"
+                      fullWidth
+                      onChange={handleDateChange}
+                    />
+                    <TextField
+                      label="Check-out Date"
+                      id="checkOutDate"
+                      type="date"
+                      InputLabelProps={{ shrink: true }}
+                      variant="outlined"
+                      size="small"
+                      fullWidth
+                      onChange={handleDateChange}
+                    />
+                  </div>
+                </div>
+
+                {/* Person Count Section */}
+                <div className="flex flex-col gap-4">
+                  <Typography variant="body1" className="font-medium">
+                    Person Count
+                  </Typography>
+                  <div className="flex gap-4">
+                    <TextField
+                      label="Number of Adults"
+                      type="number"
+                      defaultValue={1}
+                      inputProps={{ min: 1 }}
+                      variant="outlined"
+                      size="small"
+                      fullWidth
+                    />
+                    <TextField
+                      label="Number of Children"
+                      type="number"
+                      defaultValue={1}
+                      inputProps={{ min: 1 }}
+                      variant="outlined"
+                      size="small"
+                      fullWidth
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader
+                title={<Typography variant="h7">Booking Summary</Typography>}
+              />
+              <CardContent className="grid gap-4">
+                <div className="grid gap-2">
+                  {cart.map((room) => (
+                    <div
+                      key={room.id}
+                      className="flex items-center justify-between"
+                    >
+                      <Typography variant="body1">
+                        Room {room.roomNumber} - {room.type}
+                      </Typography>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleRemoveFromCart(room)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </div>
+                  ))}
+                </div>
+                <Divider />
+                <div className="flex items-center justify-between">
+                  <Typography variant="body1" className="font-medium">
+                    Total
+                  </Typography>
+                  <Typography variant="h4">${getTotalPrice()}</Typography>
+                </div>
+                <Button variant="contained" size="large" fullWidth>
+                  Confirm Booking
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
