@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 import CardContent from "@mui/material/CardContent";
@@ -10,18 +10,19 @@ import MenuItem from "@mui/material/MenuItem";
 import Divider from "@mui/material/Divider";
 import DeleteIcon from "@mui/icons-material/Delete";
 import TextField from "@mui/material/TextField";
-import { toast } from "react-toastify";
+import {toast} from "react-toastify";
 
-import { getAllRooms } from "../service/RoomService";
-import { findCustomerById } from "../service/CustomerService";
-import { saveBooking } from "../service/BookingService";
+import {getAllRooms} from "../service/RoomService";
+import {findCustomerById} from "../service/CustomerService";
+import {saveBooking} from "../service/BookingService";
 import RoomCard from "../components/RoomCard";
 
 export default function BookingsView() {
   const [roomList, setRoomList] = useState([]);
   const [cart, setCart] = useState([]);
-  const [checkInDate, setCheckInDate] = useState("");
-  const [checkOutDate, setCheckOutDate] = useState("");
+  const today = new Date().toISOString().split("T")[0];
+  const [checkInDate, setCheckInDate] = useState(today);
+  const [checkOutDate, setCheckOutDate] = useState(today);
   const [customer, setCustomer] = useState({});
   const [customerId, setCustomerId] = useState(0);
 
@@ -137,7 +138,11 @@ export default function BookingsView() {
   };
 
   const getTotalAmount = () => {
-    return cart.reduce((total, room) => total + room.price, 0);
+    let timeDifference = new Date(checkOutDate) - new Date(checkInDate);
+    let daysCount = timeDifference / (1000 * 3600 * 24);
+    daysCount == 0 ? (daysCount = 1) : (daysCount = daysCount);
+    let totalValue = cart.reduce((total, room) => total + room.price, 0);
+    return totalValue * daysCount;
   };
 
   return (

@@ -20,20 +20,31 @@ const RoomCard = ({ room, onAddToCart }) => {
     <Card className="mb-2 shadow">
       <CardContent className="flex items-center  justify-between">
         <div className="flex-1 flex gap-4  items-center">
-          <Typography variant="body1" className="flex-1">
+          <Typography variant="body2" className="flex-1">
             Room {room.roomNumber}
           </Typography>
-          <Typography variant="body1" className="flex-1">
+          <Typography variant="body2" className="flex-1">
             {room.type}
           </Typography>
-          <Typography variant="body1" className="flex-1">
-            ${room.price} per night
+          <Typography variant="body2" className="flex-1">
+            ${Number(room.price).toFixed(2)}
           </Typography>
           <Typography
-            variant="body1"
-            className={`flex-1 ${getAvailabilityColor()}`}
+            variant="body2" // Using a smaller variant for the tag
+            className={`px-2 py-1 rounded-lg ${
+              room.availabilityStatus === "AVAILABLE"
+                ? "text-green-500"
+                : "text-red-500"
+            }`}
+            style={{
+              backgroundColor:
+                room.availabilityStatus === "AVAILABLE" ? "#e6ffed" : "#ffe6e6",
+              display: "inline-block",
+            }} // Adding background color and inline-block display
           >
-            {room.availabilityStatus}
+            {room.availabilityStatus === "AVAILABLE"
+              ? "Available"
+              : "Not Available"}
           </Typography>
         </div>
         <IconButton

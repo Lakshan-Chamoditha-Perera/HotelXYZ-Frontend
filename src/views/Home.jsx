@@ -50,7 +50,7 @@ const Home = () => {
               <div className="text-3xl font-bold">24</div>
             </div>
             <div className="text-purple-600 bg-purple-100 p-2 rounded-full">
-              <span className="text-lg">20%</span>
+              {/* <span className="text-lg">20%</span> */}
             </div>
           </div>
 
@@ -60,7 +60,7 @@ const Home = () => {
               <div className="text-3xl font-bold">{totalRevenue}</div>
             </div>
             <div className="text-red-600 bg-red-100 p-2 rounded-full">
-              <span className="text-lg">20%</span>
+              {/* <span className="text-lg">20%</span> */}
             </div>
           </div>
 
@@ -71,7 +71,7 @@ const Home = () => {
             </div>
             <div className="text-blue-600 bg-blue-100 p-2 rounded-full">
               <span className="text-lg">
-                {(bookedCount / bookingsList.length) * 100}%
+                {Number((bookedCount / bookingsList.length) * 100).toFixed(2)}%
               </span>
             </div>
           </div>

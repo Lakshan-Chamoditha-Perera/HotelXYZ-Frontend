@@ -2,10 +2,8 @@ import { useEffect, useState } from "react";
 import {
   Button,
   FormControl,
-  FormControlLabel,
   InputLabel,
   MenuItem,
-  Radio,
   Select,
   TextField,
 } from "@mui/material";
@@ -246,7 +244,6 @@ export default function RoomView() {
   return (
     <div className="flex flex-col gap-8 p-6 md:p-8 lg:p-10">
       <div className="bg-white shadow rounded-lg p-4">
-       
         <div className="border-b border-gray-200 mb-4">
           <h2 className="text-lg font-semibold">Room Management</h2>
           <p className="text-sm text-gray-600">
@@ -389,63 +386,39 @@ export default function RoomView() {
           <table className="min-w-full bg-white border-collapse">
             <thead>
               <tr>
-                <th
-                  className="cursor-pointer p-4 border-b-2"
-                  onClick={() => handleSort("id")}
-                >
-                  ID
-                  {sortColumn === "id" && (
-                    <span className="ml-1">
-                      {sortDirection === "asc" ? "▲" : "▼"}
-                    </span>
-                  )}
-                </th>
-                <th
-                  className="cursor-pointer p-4 border-b-2"
-                  onClick={() => handleSort("number")}
-                >
-                  Room Number
-                  {sortColumn === "roomNumber" && (
-                    <span className="ml-1">
-                      {sortDirection === "asc" ? "▲" : "▼"}
-                    </span>
-                  )}
-                </th>
-                <th className="cursor-pointer p-4 border-b-2">Type</th>
-                <th className="cursor-pointer p-4 border-b-2">
-                  Price
-                  {sortColumn === "price" && (
-                    <span className="ml-1">
-                      {sortDirection === "asc" ? "▲" : "▼"}
-                    </span>
-                  )}
-                </th>
-                <th className="cursor-pointer p-4 border-b-2">
-                  Availability Status
-                </th>
+                <th className="cursor-pointer p-4 border-b-2">ID</th>
+                <th className="cursor-pointer p-4 border-b-2">Room Number </th>
+                <th className="p-4 border-b-2">Type</th>{" "}
+                <th className="cursor-pointer p-4 border-b-2">Price</th>
+                <th className="p-4 border-b-2">Availability Status</th>
                 <th className="p-4 border-b-2 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredRooms.map((room) => (
-                <tr key={room.id}>
-                  <td className="p-4 border-b">{room.id}</td>{" "}
-                  {/* New ID Column */}
-                  <td className="p-4 border-b">{room.roomNumber}</td>
-                  <td className="p-4 border-b">{room.type}</td>
-                  <td className="p-4 border-b">{room.price}</td>
+                <tr key={room.id} className="hover:bg-gray-100">
+                  <td className="p-4 border-b text-center">{room.id}</td>
+                  <td className="p-4 border-b text-center">
+                    {room.roomNumber}
+                  </td>
+                  <td className="p-4 border-b text-center">{room.type}</td>
+                  <td className="p-4 border-b text-center">{`$${room.price.toFixed(
+                    2
+                  )}`}</td>
                   <td
-                    className="p-4 border-b"
-                    style={{
-                      color:
-                        room.availabilityStatus === "AVAILABLE"
-                          ? "green"
-                          : room.availabilityStatus === "NOT_AVAILABLE"
-                          ? "red"
-                          : "orange",
-                    }}
+                    className={`p-4 border-b text-sm font-medium rounded-lg text-center ${
+                      room.availabilityStatus === "AVAILABLE"
+                        ? "text-green-600 "
+                        : room.availabilityStatus === "NOT_AVAILABLE"
+                        ? "text-red-600 "
+                        : "text-orange-600"
+                    }`}
                   >
-                    {room.availabilityStatus}
+                    {room.availabilityStatus === "AVAILABLE"
+                      ? "Available"
+                      : room.availabilityStatus === "NOT_AVAILABLE"
+                      ? "Not Available"
+                      : "Pending"}
                   </td>
                   <td className="p-4 border-b text-right">
                     <Button
@@ -453,17 +426,19 @@ export default function RoomView() {
                         setIsRoomSelected(true);
                         setSelectedRoom(room);
                       }}
-                      className="text-blue-600 hover:text-blue-800"
+                      className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                      style={{ minWidth: "40px", padding: "4px" }}
                     >
-                      <EditIcon />
+                      <EditIcon fontSize="small" />
                     </Button>
                     <Button
                       onClick={() => {
                         /* Delete action */
                       }}
-                      className="text-red-600 hover:text-red-800 ml-2"
+                      className="text-red-600 hover:text-red-800 transition-colors duration-200 ml-2"
+                      style={{ minWidth: "40px", padding: "4px" }}
                     >
-                      <DeleteIcon />
+                      <DeleteIcon fontSize="small" />
                     </Button>
                   </td>
                 </tr>
@@ -473,22 +448,5 @@ export default function RoomView() {
         </div>
       </div>
     </div>
-  );
-}
-
-function SearchIcon(props) {
-  return (
-    <svg
-      className="h-5 w-5 text-gray-400"
-      fill="currentColor"
-      viewBox="0 0 20 20"
-      {...props}
-    >
-      <path
-        fillRule="evenodd"
-        d="M8 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm2 8a6 6 0 1 1 11.192-2.193l4.387 4.387a1 1 0 0 1-1.414 1.415l-4.386-4.387A5.98 5.98 0 0 1 10 12z"
-        clipRule="evenodd"
-      />
-    </svg>
   );
 }
