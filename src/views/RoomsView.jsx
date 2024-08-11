@@ -246,6 +246,7 @@ export default function RoomView() {
   return (
     <div className="flex flex-col gap-8 p-6 md:p-8 lg:p-10">
       <div className="bg-white shadow rounded-lg p-4">
+       
         <div className="border-b border-gray-200 mb-4">
           <h2 className="text-lg font-semibold">Room Management</h2>
           <p className="text-sm text-gray-600">

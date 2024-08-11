@@ -11,19 +11,24 @@ import { toast } from "react-toastify";
 
 export default function ManageCustomer(effect, deps) {
   const [customers, setCustomers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortColumn, setSortColumn] = useState("name");
-  const [sortDirection, setSortDirection] = useState("asc");
-
-  const [isCustomerSelected, setIsCustomerSelected] = useState(false);
-
-  const [selectedCustomer, setSelectedCustomer] = useState({
+  const [searchTerm, setSearchTerm] = useState({
     nic: "",
     firstName: "",
     lastName: "",
     phone: "",
     email: "",
   });
+  const [isCustomerSelected, setIsCustomerSelected] = useState(false);
+
+  const [selectedCustomer, setSelectedCustomer] = useState({
+    id: "",
+    nic: "",
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+  });
+
   // handle customer data change
   function handleCustomerDataChange(event) {
     const { id, value } = event.target;
@@ -213,42 +218,32 @@ export default function ManageCustomer(effect, deps) {
    */
   function resetForm() {
     setSelectedCustomer({
+      id: "",
       nic: "",
       firstName: "",
       lastName: "",
       phone: "",
       email: "",
     });
+    setIsCustomerSelected(false);
   }
 
-  const handleSearch = (e) => setSearchTerm(e.target.value);
+  function searchCustomerFormOnChange(event) {
+    let { id, value } = event.target;
+    id = id.split("_")[1];
+    setSearchTerm((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }));
 
-  const handleSort = (column) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortColumn(column);
-      setSortDirection("asc");
-    }
-  };
-
-  const filteredCustomers = customers.filter(
-    (customer) =>
-      customer.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.phone.includes(searchTerm)
-  );
-
-  const sortedCustomers = filteredCustomers.sort((a, b) => {
-    if (a[sortColumn] < b[sortColumn]) return sortDirection === "asc" ? -1 : 1;
-    if (a[sortColumn] > b[sortColumn]) return sortDirection === "asc" ? 1 : -1;
-    return 0;
-  });
+    console.log("search term : ", searchTerm);
+  }
 
   function handleTableDataOnClick(customer) {
     console.log("handle table data on click : ", customer);
     setSelectedCustomer({
       id: customer.id,
+      nic: customer.nic,
       firstName: customer.firstName,
       lastName: customer.lastName,
       email: customer.email,
@@ -257,113 +252,150 @@ export default function ManageCustomer(effect, deps) {
     setIsCustomerSelected(true);
   }
 
+  function searchCustomers() {
+    console.log("search customers : ", searchTerm);
+    getAllCustomers(searchTerm)
+      .then((response) => {
+        setCustomers(response.data);
+        toast.success("Customers fetched successfully", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      })
+      .catch((error) => {
+        toast.error(error.message, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+      });
+  }
+
   return (
     <div className="flex flex-col gap-8 p-6 md:p-8 lg:p-10">
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <div className="col-span-1 md:col-span-2 lg:col-span-3">
-          <div className="bg-white shadow rounded-lg">
-            <div className="p-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold">Customer Management</h2>
-              <p className="text-sm text-gray-600">
-                Add and update customer information.
-              </p>
+      <div className="bg-white shadow rounded-lg p-4">
+        <div className="border-b border-gray-200 mb-4">
+          <h2 className="text-lg font-semibold">Customer Management</h2>
+          <p className="text-sm text-gray-600">
+            Add and update customer information.
+          </p>
+        </div>
+
+        <form className="flex flex-col mb-4">
+          <div className="flex flex-wrap gap-8">
+            <div className="grid gap-2">
+              <label
+                htmlFor="nic"
+                className="text-sm font-medium text-gray-700"
+              >
+                Nic
+              </label>
+              <input
+                id="nic"
+                placeholder="Enter Nic number"
+                value={selectedCustomer.nic}
+                onChange={handleCustomerDataChange}
+                className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
             </div>
 
-            <div className="p-4">
-              <form className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <div className="grid gap-2">
-                  <label
-                    htmlFor="nic"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Nic
-                  </label>
-                  <input
-                    id="nic"
-                    placeholder="Enter Nic number"
-                    value={selectedCustomer.nic}
-                    onChange={handleCustomerDataChange}
-                    className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <label
-                    htmlFor="firstName"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    First Name
-                  </label>
-                  <input
-                    id="firstName"
-                    placeholder="Enter First name"
-                    value={selectedCustomer.firstName}
-                    onChange={handleCustomerDataChange}
-                    className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <label
-                    htmlFor="lastName"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Last Name
-                  </label>
-                  <input
-                    id="lastName"
-                    type="text"
-                    placeholder="Enter Last name"
-                    value={selectedCustomer.lastName}
-                    onChange={handleCustomerDataChange}
-                    className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <label
-                    htmlFor="phone"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Phone
-                  </label>
-                  <input
-                    id="phone"
-                    placeholder="Enter phone number"
-                    value={selectedCustomer.phone}
-                    type={"tel"}
-                    onChange={handleCustomerDataChange}
-                    className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <label
-                    htmlFor="email"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Email
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="Enter email"
-                    value={selectedCustomer.email}
-                    onChange={handleCustomerDataChange}
-                    className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                </div>
+            <div className="grid gap-2">
+              <label
+                htmlFor="firstName"
+                className="text-sm font-medium text-gray-700"
+              >
+                First Name
+              </label>
+              <input
+                id="firstName"
+                placeholder="Enter First name"
+                value={selectedCustomer.firstName}
+                onChange={handleCustomerDataChange}
+                className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
 
-                <div className="col-span-1 sm:col-span-2 lg:col-span-1 flex items-end">
-                  <Button
-                    onClick={handleSubmitForm}
-                    className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-sm
-                                        hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500
-                                        focus:ring-offset-2"
-                  >
-                    {!isCustomerSelected ? "Save" : "Update"}
-                  </Button>
-                </div>
-              </form>
+            <div className="grid gap-2">
+              <label
+                htmlFor="lastName"
+                className="text-sm font-medium text-gray-700"
+              >
+                Last Name
+              </label>
+              <input
+                id="lastName"
+                type="text"
+                placeholder="Enter Last name"
+                value={selectedCustomer.lastName}
+                onChange={handleCustomerDataChange}
+                className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <label
+                htmlFor="phone"
+                className="text-sm font-medium text-gray-700"
+              >
+                Phone
+              </label>
+              <input
+                id="phone"
+                placeholder="Enter phone number"
+                value={selectedCustomer.phone}
+                type={"tel"}
+                onChange={handleCustomerDataChange}
+                className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <label
+                htmlFor="email"
+                className="text-sm font-medium text-gray-700"
+              >
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="Enter email"
+                value={selectedCustomer.email}
+                onChange={handleCustomerDataChange}
+                className="px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
             </div>
           </div>
-        </div>
+
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="contained"
+              style={{ backgroundColor: "#f44336", color: "#fff" }}
+              onClick={resetForm}
+            >
+              Clear
+            </Button>
+
+            <Button
+              variant="contained"
+              color={isCustomerSelected ? "inherit" : "primary"}
+              onClick={handleSubmitForm}
+            >
+              {!isCustomerSelected ? "Save" : "Update"}
+            </Button>
+          </div>
+        </form>
       </div>
 
       <div className="bg-white shadow rounded-lg">
@@ -380,12 +412,11 @@ export default function ManageCustomer(effect, deps) {
               <div className="relative w-full max-w-xs">
                 <SearchIcon className="absolute left-3 top-2 h-5 w-5 text-gray-400" />
                 <input
+                  id="searchTerm_firstName"
                   type="search"
                   placeholder="First Name"
-                  value={searchTerm.firstName || ""}
-                  onChange={(e) =>
-                    setSearchTerm({ ...searchTerm, firstName: e.target.value })
-                  }
+                  value={searchTerm.firstName}
+                  onChange={searchCustomerFormOnChange}
                   className="w-full pl-10 pr-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
@@ -393,12 +424,11 @@ export default function ManageCustomer(effect, deps) {
               <div className="relative w-full max-w-xs">
                 <SearchIcon className="absolute left-3 top-2 h-5 w-5 text-gray-400" />
                 <input
+                  id="searchTerm_lastName"
                   type="search"
                   placeholder="Last Name"
-                  value={searchTerm.lastName || ""}
-                  onChange={(e) =>
-                    setSearchTerm({ ...searchTerm, lastName: e.target.value })
-                  }
+                  value={searchTerm.lastName}
+                  onChange={searchCustomerFormOnChange}
                   className="w-full pl-10 pr-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
@@ -406,9 +436,11 @@ export default function ManageCustomer(effect, deps) {
               <div className="relative w-full max-w-xs">
                 <SearchIcon className="absolute left-3 top-2 h-5 w-5 text-gray-400" />
                 <input
+                  id="searchTerm_phone"
                   type="search"
                   placeholder="Phone"
-                  value={searchTerm.phone || ""}
+                  value={searchTerm.phone}
+                  onChange={searchCustomerFormOnChange}
                   className="w-full pl-10 pr-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
@@ -416,9 +448,11 @@ export default function ManageCustomer(effect, deps) {
               <div className="relative w-full max-w-xs">
                 <SearchIcon className="absolute left-3 top-2 h-5 w-5 text-gray-400" />
                 <input
+                  id="searchTerm_email"
                   type="search"
                   placeholder="Email"
-                  value={searchTerm.email || ""}
+                  value={searchTerm.email}
+                  onChange={searchCustomerFormOnChange}
                   className="w-full pl-10 pr-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
@@ -426,16 +460,22 @@ export default function ManageCustomer(effect, deps) {
               <div className="relative w-full max-w-xs">
                 <SearchIcon className="absolute left-3 top-2 h-5 w-5 text-gray-400" />
                 <input
+                  id="searchTerm_nic"
                   type="search"
                   placeholder="NIC"
-                  value={searchTerm.nic || ""}
+                  value={searchTerm.nic}
+                  onChange={searchCustomerFormOnChange}
                   className="w-full pl-10 pr-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
             </div>
 
-            <div className="flex border justify-end">
-              <Button variant="contained" color="primary">
+            <div className="flex justify-end">
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={searchCustomers}
+              >
                 Filter
               </Button>
             </div>
@@ -443,46 +483,37 @@ export default function ManageCustomer(effect, deps) {
           <table className="min-w-full bg-white">
             <thead>
               <tr>
-                <th
-                  className="cursor-pointer p-4 border-b-2"
-                  onClick={() => handleSort("name")}
-                >
-                  First Name
-                  {sortColumn === "firstName" && (
-                    <span className="ml-1">
-                      {sortDirection === "asc" ? "▲" : "▼"}
-                    </span>
-                  )}
-                </th>
+                <th className="cursor-pointer p-4 border-b-2">Nic</th>
+
+                <th className="cursor-pointer p-4 border-b-2">First Name</th>
                 <th className="cursor-pointer p-4 border-b-2">Last Name</th>
-                <th className="cursor-pointer p-4 border-b-2">
-                  Email
-                  {sortColumn === "email" && (
-                    <span className="ml-1">
-                      {sortDirection === "asc" ? "▲" : "▼"}
-                    </span>
-                  )}
-                </th>
+                <th className="cursor-pointer p-4 border-b-2">Email</th>
                 <th className="cursor-pointer p-4 border-b-2">Phone</th>
 
                 <th className="p-4 border-b-2 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {sortedCustomers.map((customer) => (
+              {customers.map((customer) => (
                 <tr
                   className={"hover:cursor-pointer"}
                   key={customer.id}
-                  onClick={(e) => {
-                    e.preventDefault();
+                  onClick={() => {
                     handleTableDataOnClick(customer);
                   }}
                 >
-                  <td className="p-4 border-b">{customer.firstName}</td>
-                  <td className="p-4 border-b">{customer.lastName}</td>
-                  <td className="p-4 border-b">{customer.email}</td>
-                  <td className="p-4 border-b">{customer.phone}</td>
-                  <td className="p-4 border-b flex justify-end items-center">
+                  <td className="p-4 text-center border-b">{customer.nic}</td>
+                  <td className="p-4 text-center border-b">
+                    {" "}
+                    {customer.firstName}
+                  </td>
+                  <td className="p-4 text-center border-b">
+                    {" "}
+                    {customer.lastName}
+                  </td>
+                  <td className="p-4 text-center border-b">{customer.email}</td>
+                  <td className="p-4 text-center border-b">{customer.phone}</td>
+                  <td className="p-4 text-center border-b flex justify-end items-center">
                     <Button
                       variant="text"
                       className="m-1 rounded-full"

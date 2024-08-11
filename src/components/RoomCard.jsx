@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Typography, Button, Card, CardContent } from "@mui/material";
+import { Typography, Card, CardContent } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import IconButton from "@mui/material/IconButton";
 
@@ -18,8 +18,8 @@ const RoomCard = ({ room, onAddToCart }) => {
 
   return (
     <Card className="mb-2 shadow">
-      <CardContent className="flex items-center justify-between">
-        <div className="flex-1 flex gap-4 items-center">
+      <CardContent className="flex items-center  justify-between">
+        <div className="flex-1 flex gap-4  items-center">
           <Typography variant="body1" className="flex-1">
             Room {room.roomNumber}
           </Typography>
@@ -36,7 +36,11 @@ const RoomCard = ({ room, onAddToCart }) => {
             {room.availabilityStatus}
           </Typography>
         </div>
-        <IconButton size="small" onClick={() => onAddToCart(room)}>
+        <IconButton
+          disabled={room.availabilityStatus === "NOT_AVAILABLE"}
+          size="small"
+          onClick={() => onAddToCart(room)}
+        >
           <AddIcon />
         </IconButton>
       </CardContent>

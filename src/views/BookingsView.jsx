@@ -8,13 +8,13 @@ import IconButton from "@mui/material/IconButton";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Divider from "@mui/material/Divider";
-import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import TextField from "@mui/material/TextField";
 import { toast } from "react-toastify";
 
 import { getAllRooms } from "../service/RoomService";
-import { getAllCustomers, findCustomerById } from "../service/CustomerService";
+import { findCustomerById } from "../service/CustomerService";
+import { saveBooking } from "../service/BookingService";
 import RoomCard from "../components/RoomCard";
 
 export default function BookingsView() {
@@ -24,6 +24,62 @@ export default function BookingsView() {
   const [checkOutDate, setCheckOutDate] = useState("");
   const [customer, setCustomer] = useState({});
   const [customerId, setCustomerId] = useState(0);
+
+  function validateBooking(booking) {
+    if (booking.customerId == null || booking.customerId === 0) {
+      throw new Error("Customer is required");
+    }
+    if (booking.checkInDate == null || booking.checkInDate === "") {
+      throw new Error("Check-in date is required");
+    }
+    if (booking.checkOutDate == null || booking.checkOutDate === "") {
+      throw new Error("Check-out date is required");
+    }
+
+    if (new Date(booking.checkInDate) > new Date(booking.checkOutDate)) {
+      throw new Error("Check-out date should be greater than check-in date");
+    }
+
+    if (booking.roomIds == null || booking.roomIds.length === 0) {
+      throw new Error("At least one room is required");
+    }
+
+    if (booking.totalAmount == null || booking.totalAmount === 0) {
+      throw new Error("Total price is required");
+    }
+
+    return true;
+  }
+
+  function handleConfirmBooking() {
+    console.log("CONTROLLER :Handle Confirm Booking");
+    let booking = {
+      customerId: customer.id,
+      checkInDate: checkInDate,
+      checkOutDate: checkOutDate,
+      roomIds: cart?.map((room) => room.id),
+      totalAmount: getTotalAmount(),
+    };
+
+    try {
+      if (validateBooking(booking)) {
+        console.log("Booking validated");
+        saveBooking(booking)
+          .then((response) => {
+            console.log("Booking saved");
+            console.log(response);
+            toast.success("Booking confirmed");
+          })
+          .catch((error) => {
+            console.error("Error saving booking:", error);
+            toast.error(error.message);
+          });
+      }
+    } catch (error) {
+      console.error("Error confirming booking:", error);
+      toast.error(error.message);
+    }
+  }
 
   function handleCustomerNICChange(event) {
     setCustomerId(event.target.value);
@@ -39,7 +95,7 @@ export default function BookingsView() {
       })
       .catch((error) => {
         console.log(error);
-        toast.error("Customer not found");
+        toast.error(error.message);
       });
   }
 
@@ -80,7 +136,7 @@ export default function BookingsView() {
     }
   };
 
-  const getTotalPrice = () => {
+  const getTotalAmount = () => {
     return cart.reduce((total, room) => total + room.price, 0);
   };
 
@@ -129,25 +185,29 @@ export default function BookingsView() {
                   <Typography variant="body1" className="font-semibold mb-2">
                     Customer Details
                   </Typography>
-                  <div className="flex flex-col gap-1">
-                    {[
-                      `ID: ${customer.id || "-"}`,
-                      `NIC: ${customer.nic || "-"}`,
-                      `Name: ${
-                        customer.firstName + " " + customer.lastName || "-"
-                      }`,
-                      `Email: ${customer.email || "-"}`,
-                      `Phone: ${customer.phone || "-"}`,
-                    ].map((detail, index) => (
-                      <Typography
-                        key={index}
-                        variant="body2"
-                        color="textSecondary"
-                      >
-                        {detail}
+                  {customer?.id ? (
+                    <div className="grid gap-2">
+                      <Typography variant="body2" color="textSecondary">
+                        ID: {customer.id}
                       </Typography>
-                    ))}
-                  </div>
+                      <Typography variant="body2" color="textSecondary">
+                        Name: {`${customer.firstName} ${customer.lastName}`}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        Email: {customer.email}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        Phone: {customer.phone}
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        NIC: {customer.nic}
+                      </Typography>
+                    </div>
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      Customer not found
+                    </Typography>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -286,9 +346,14 @@ export default function BookingsView() {
                   <Typography variant="body1" className="font-medium">
                     Total
                   </Typography>
-                  <Typography variant="h4">${getTotalPrice()}</Typography>
+                  <Typography variant="h4">${getTotalAmount()}</Typography>
                 </div>
-                <Button variant="contained" size="large" fullWidth>
+                <Button
+                  onClick={handleConfirmBooking}
+                  variant="contained"
+                  size="large"
+                  fullWidth
+                >
                   Confirm Booking
                 </Button>
               </CardContent>
